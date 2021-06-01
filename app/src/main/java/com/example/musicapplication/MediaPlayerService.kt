@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import java.io.IOException
@@ -23,6 +24,7 @@ class MediaPlayerService: Service(),
     private var mediaFile: String? = null
     private var resumePosition = 0
     private var audioManager: AudioManager? = null
+    private val iBinder: IBinder = LocalBinder()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
@@ -189,6 +191,11 @@ class MediaPlayerService: Service(),
     private fun removeAudioFocus(): Boolean {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
                 audioManager!!.abandonAudioFocus(this)
+    }
+
+    class LocalBinder : Binder() {
+        val service: MediaPlayerService
+            get() = MediaPlayerService()
     }
 
 }
