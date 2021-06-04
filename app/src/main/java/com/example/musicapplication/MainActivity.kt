@@ -6,33 +6,42 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
-import android.provider.MediaStore
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 
 class MainActivity : AppCompatActivity() {
     private var player: MediaPlayerService? = null
     var serviceBound = false
-    var audioList: ArrayList<Audio>? = null
+    var audioList: ArrayList<Audio>? = ArrayList()
     private val REQ_DANGERS_PERMISSION = 2
-
+    lateinit var adapter: MusicAdapter
+    lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         loadAudio()
-        //play the first audio in the ArrayList
-        //audioList?.get(0)?.getData()?.let { playAudio(it) }
-        playAudio("https://upload.wikimedia.org/wikipedia/commons/6/6c/Grieg_Lyric_Pieces_Kobold.ogg");
-
+        initView()
     }
+
+    fun initView() {
+        recyclerView = findViewById(R.id.songsRV)
+        adapter = audioList?.let { MusicAdapter(it,this) }!!
+        recyclerView.adapter = adapter
+        recyclerView.itemAnimator = DefaultItemAnimator()
+
+        val layoutmanager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutmanager
+    }
+
 
     override fun onResume() {
         super.onResume()
@@ -54,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun playAudio(media: String) {
+    fun playAudio(media: String) {
         //Check is service is active
         if (!serviceBound) {
             val playerIntent = Intent(this, MediaPlayerService::class.java)
@@ -68,28 +77,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadAudio() {
-        val contentResolver = contentResolver
-        val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        val selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0"
-        val sortOrder = MediaStore.Audio.Media.TITLE + " ASC"
-        val cursor: Cursor? = contentResolver.query(uri, null, selection, null, sortOrder)
-        if (cursor != null && cursor.getCount() > 0) {
-            audioList = ArrayList()
-            while (cursor.moveToNext()) {
-                val data: String =
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
-                val title: String =
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
-                val album: String =
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
-                val artist: String =
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
-
-                // Save to audioList
-                audioList!!.add(Audio(data, title, album, artist))
-            }
-        }
-        cursor?.close()
+        val audio1 = Audio("Shakira", "Me Enamoré", "Me Enamoré", "Shakira")
+        audioList?.add(audio1)
+        val audio2 = Audio("", "When a Woman", "Me Enamoré", "Shakira")
+        audioList?.add(audio2)
+        val audio3 = Audio("", "Amarillo", "Me Enamoré", "Shakira")
+        audioList?.add(audio3)
     }
 
     fun requestPermissions(activity: AppCompatActivity) {
@@ -132,6 +125,4 @@ class MainActivity : AppCompatActivity() {
             player!!.stopSelf()
         }
     }
-
-
 }

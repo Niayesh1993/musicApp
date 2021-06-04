@@ -10,7 +10,6 @@ import android.os.IBinder
 import android.util.Log
 import java.io.IOException
 
-
 /**
  * Created by Zohre Niayeshi on 31,May,2021 niayesh1993@gmail.com
  **/
@@ -24,7 +23,6 @@ class MediaPlayerService: Service(),
     private var mediaFile: String? = null
     private var resumePosition = 0
     private var audioManager: AudioManager? = null
-    private val iBinder: IBinder = LocalBinder()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
@@ -48,9 +46,9 @@ class MediaPlayerService: Service(),
         super.onDestroy();
         if (mediaPlayer != null) {
             stopMedia();
-            mediaPlayer!!.release();
+            mediaPlayer!!.release()
         }
-        removeAudioFocus();
+        removeAudioFocus()
     }
 
 
